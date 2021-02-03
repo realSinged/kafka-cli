@@ -35,9 +35,11 @@ func NewCmdConsume() *cobra.Command {
 			}
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
-			err = c.Consume(ctx,[]string{"polaris.traffic.alarm"}, handler{})
+			log.Info("going to consume")
+			err = c.Consume(ctx,[]string{"event"}, handler{})
 			if err != nil {
 				log.Error("consume failed", zap.Error(err))
+
 			}
 		},
 	}

@@ -3,12 +3,13 @@ package main
 import (
 	"fmt"
 	"github.com/realSinged/kafka-cli/cmd/consumer"
+	"github.com/realSinged/kafka-cli/cmd/topic"
 	"github.com/realSinged/kafka-cli/log"
+	"github.com/spf13/cobra"
 	"math/rand"
 	"os"
 	"strings"
 	"time"
-	"github.com/spf13/cobra"
 )
 
 func main() {
@@ -44,5 +45,6 @@ For many years people have printed back to the screen.`,
 
 	cmds.AddCommand(cmdPrint)
 	cmds.AddCommand(consumer.NewCmdConsume())
+	cmds.AddCommand(topic.NewCmdTopic())
 	return cmds
 }
