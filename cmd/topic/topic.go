@@ -47,7 +47,8 @@ func (o *topicOptions) run(cmd *cobra.Command, args []string) {
 		}
 		for k, v := range topics {
 			s, _ :=  json.MarshalIndent(v, "", "")
-			fmt.Printf("%s: %v\n", k, string(s))
+
+			fmt.Printf("TOPIC:%s\nDETAIL:%s\n****************************************\n", k, string(s))
 		}
 	} else if o.describe != "" {
 		topics, err := admin.DescribeTopics(strings.Split(o.describe, ","))
@@ -57,7 +58,7 @@ func (o *topicOptions) run(cmd *cobra.Command, args []string) {
 		}
 		for k,v := range topics {
 			s, _ :=  json.MarshalIndent(v, "", " ")
-			fmt.Printf("%s: %v\n", k, string(s))
+			fmt.Printf("%d: %v\n", k, string(s))
 		}
 	}else if o.create != "" {
 		err := admin.CreateTopic(o.create, &sarama.TopicDetail{NumPartitions: o.numPartition, ReplicationFactor: o.numReplica}, false)
