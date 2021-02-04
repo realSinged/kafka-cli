@@ -58,13 +58,13 @@ var (
 		}
 
 # Delete a topic.
-	./kafka-cli topic -d=singed
-	result:
+    ./kafka-cli topic -d=singed
+    result:
 		{"level":"info","ts":1612424432.454704,"caller":"log/log.go:16","msg":"Delete Topic success","topic":"singed"}
 
 # Add partition number of topic
-   ./kafka-cli topic --add-partition=singed --partition-num=3
-	result:
+    ./kafka-cli topic --add-partition=singed --partition-num=3
+    result:
 		{"level":"info","ts":1612424575.056782,"caller":"log/log.go:16","msg":"Add partition success","topic":"singed","partition num":3}
 `
 )

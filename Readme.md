@@ -202,12 +202,34 @@ Ldap configuration to match AKHQ groups/roles
           --partition-num int32       The specified partition when create topic or add partition (default 1)
           --replica-num int16         The specified replica when create topic (default 1)
 
+**Producer**:
 
-
+    A kafka synchronous producer, with pretty much config options. but it's not asynchronous, which means it will wait for result before return
+    
+    Usage:
+      kafka-cli producer [flags]
+    
+    Examples:
+    
+    # Produce a message
+        ./kafka-cli producer --bootstrap-servers=localhost:9092 --key=13 --partitioner=random --topic=singed --value='test value'
+        result:
+            {"level":"info","ts":1612429377.79058,"caller":"log/log.go:16","msg":"Send message success","partition":2,"offset":0}
+    
+    
+    Flags:
+      -b, --bootstrap-servers string   The Kafka server to connect to.more than one should be separated by commas (default "localhost:9092")
+          --headers string             The headers of the message. Example: -headers=foo:bar,bar:foo
+      -h, --help                       help for producer
+          --key string                 the key of message
+          --partition int32            The partition which message produce to, if provided, it will use manual partitioner (default -1)
+          --partitioner string         The partitioning scheme to use. Can be hash, manual, or random (default "hash")
+          --topic string               REQUIRED: The topic id to produce messages to.
+          --value string               REQUIRED: The message content which is going to be produced
+    
 Please use `./kafka-cli -h` or `./kafka-cli [command] -h` for more detail.
 
 ## Compatibility
-Tested on：
-
+- **Tested on**
     - apache kafka 2.13.0
     - golang 1.15.7

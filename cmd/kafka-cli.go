@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/realSinged/kafka-cli/cmd/admin"
 	"github.com/realSinged/kafka-cli/cmd/consumer"
+	"github.com/realSinged/kafka-cli/cmd/producer"
 	"github.com/realSinged/kafka-cli/cmd/topic"
 	"github.com/spf13/cobra"
 	"math/rand"
@@ -28,6 +29,7 @@ func NewKafkaCliCommand() *cobra.Command{
 	cmds.AddCommand(consumer.NewCmdConsume())
 	cmds.AddCommand(topic.NewCmdTopic())
 	cmds.AddCommand(admin.NewCmdAdmin())
+	cmds.AddCommand(producer.NewCmdProducer())
 	return cmds
 }
 
