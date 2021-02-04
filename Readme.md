@@ -14,87 +14,9 @@ A command line tool for apache kafka, include topic,consumer,producer, admin's o
     - create
     - delete
     - add partitions
-    - 
-* Browse Topic datas
+- **Producer**
 
-View data, offset, key, timestamp & headers
-
-Automatic deserialization of avro message encoded with schema registry
-
-Configurations view
-
-Logs view
-
-Delete a record
-
-Empty a Topic (Delete all the record from one topic)
-
-Sort view
-
-Filter per partitions
-
-Filter with a starting time
-
-Filter data with a search string
-
-* Consumer Groups (only with kafka internal storage, not with the old Zookeeper one)
-
-List with lag, topics assignments
-
-Partitions view & lag
-
-ACLS view
-
-Node leader & assignments view
-
-Display active and pending consumers groups
-
-Delete a consumer group
-
-Update consumer group offsets to start / end / timestamp
-
-* Schema Registry
-
-List schema
-
-Create / Update / Delete a schema
-
-View and delete individual schema version
-
-* Connect
-
-List connect definition
-
-Create / Update / Delete a definition
-
-Pause / Resume / Restart a definition or a task
-
-* Nodes
-
-List
-Configurations view
-
-Logs view
-
-Configure a node
-
-* ACLS
-
-List principals
-
-List principals topic & group acls
-
-* Authentification and Roles
-
-Read only mode
-
-BasicHttp with roles per user
-
-User groups configuration
-
-Filter topics with regexp for current groups
-
-Ldap configuration to match AKHQ groups/roles
+- **Consumer**
 
 ## Installation
 
@@ -203,7 +125,9 @@ Ldap configuration to match AKHQ groups/roles
           --replica-num int16         The specified replica when create topic (default 1)
 
 **Producer**:
-
+    
+    ./kafka-cli.go producer --help
+    
     A kafka synchronous producer, with pretty much config options. but it's not asynchronous, which means it will wait for result before return
     
     Usage:
