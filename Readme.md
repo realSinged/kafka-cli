@@ -1,6 +1,6 @@
 # Kafka-cli
 
-a command line tools for apache kafka, include topic,consumer,producer, admin's operations
+A command line tool for apache kafka, include topic,consumer,producer, admin's operations
 
 ## Features
 - **General**
@@ -103,9 +103,11 @@ Ldap configuration to match AKHQ groups/roles
     go build cmd/kafka-cli.go
 
 ## Usage
+**Overview**:
+
     ./kafka-cli
     
-    a command line tools for apache kafka, include topic,consumer,producer, admin's operations
+    A command line tools for apache kafka, include topic,consumer,producer, admin's operations
     
     Usage:
       kafka-cli [flags]
@@ -121,5 +123,91 @@ Ldap configuration to match AKHQ groups/roles
       -h, --help   help for kafka-cli
     
     Use "kafka-cli [command] --help" for more information about a command.
+    
+**Topic**:
+    
+    ./kafka-cli.go topic -h   
+                                       
+    Topic operations, include topic create、list、delete、detail, topic partition create
+    
+    Usage:
+      kafka-cli topic [flags]
+    
+    Examples:
+    
+    # Create a topic
+        ./kafka-cli topic -c=singed  --partition-num=10 --replica-num=1
+        result: 
+            {"level":"info","ts":1612423941.894614,"caller":"log/log.go:16","msg":"Create topic success","topic":"singed","partition num":10,"replica num":1}
+    
+    # List all available topics.
+        ./kafka-cli topic -l
+    
+    # List details for the given topics.more than one should be separated by commas
+        ./kafka-cli topic --describe=singed
+        result:
+            ****************************************
+                    TOPIC:singed
+                    DETAIL:{
+                    "Err": 0,
+                    "Name": "singed",
+                    "IsInternal": false,
+                    "Partitions": [
+                    {
+                            "Err": 0,
+                            "ID": 0,
+                            "Leader": 0,
+                            "Replicas": [
+                                     0
+                            ],
+                            "Isr": [
+                            0
+                            ],
+                            "OfflineReplicas": null
+                    },
+                    {
+                            "Err": 0,
+                            "ID": 1,
+                            "Leader": 0,
+                            "Replicas": [
+                            0
+                            ],
+                            "Isr": [
+                            0
+                            ],
+                            "OfflineReplicas": null
+                    }
+                    ]
+                    }
+    
+    # Delete a topic.
+            ./kafka-cli topic -d=singed
+            result:
+                    {"level":"info","ts":1612424432.454704,"caller":"log/log.go:16","msg":"Delete Topic success","topic":"singed"}
+    
+    # Add partition number of topic
+       ./kafka-cli topic --add-partition=singed --partition-num=3
+            result:
+                    {"level":"info","ts":1612424575.056782,"caller":"log/log.go:16","msg":"Add partition success","topic":"singed","partition num":3}
+    
+    
+    Flags:
+          --add-partition string      The Topic which need to create partition, partition num must higher than which already exists
+      -b, --bootstrap-server string   The Kafka server to connect to.more than one should be separated by commas (default "localhost:9092")
+      -c, --create string             Create a new topic.
+      -d, --delete string             Delete a topic.
+          --describe string           List details for the given topics.more than one should be separated by commas
+      -h, --help                      help for topic
+      -l, --list                      List all available topics.
+          --partition-num int32       The specified partition when create topic or add partition (default 1)
+          --replica-num int16         The specified replica when create topic (default 1)
 
-please use `./kafka-cli -h` or `./kafka-cli [command] -h` for more detail.
+
+
+Please use `./kafka-cli -h` or `./kafka-cli [command] -h` for more detail.
+
+## Compatibility
+Tested on：
+
+    - apache kafka 2.13.0
+    - golang 1.15.7
