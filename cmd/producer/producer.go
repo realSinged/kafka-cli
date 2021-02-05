@@ -3,6 +3,7 @@ package producer
 import (
 	"errors"
 	"github.com/Shopify/sarama"
+	"github.com/realSinged/kafka-cli/kafka"
 	"github.com/realSinged/kafka-cli/log"
 	"github.com/realSinged/kafka-cli/utils"
 	"github.com/spf13/cobra"
@@ -58,7 +59,7 @@ func (o *producerOptions) run(cmd *cobra.Command, args []string) {
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Producer.Return.Successes = true
 
-	producer, err := sarama.NewSyncProducer(strings.Split(o.bootstrapServers, ","), config)
+	producer, err := kafka.NewProducer(strings.Split(o.bootstrapServers, ","), config)
 	utils.CheckErr(err)
 	defer func() {
 		utils.CheckErr(producer.Close())

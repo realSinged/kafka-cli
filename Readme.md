@@ -1,13 +1,8 @@
 # Kafka-cli
 
-A command line tool for apache kafka, include topic,consumer,producer, admin's operations
+A command line tool for the apache kafka, include the topic, consumer, producer, admin operations
 
 ## Features
-- **General**
-    - Works with modern Kafka cluster (1.0+)
-    - Connection on standard or ssl, sasl cluster
-    - Multi cluster
-
 - **Topics**
     - list
     - describe topic partitions,replicas
@@ -15,8 +10,24 @@ A command line tool for apache kafka, include topic,consumer,producer, admin's o
     - delete
     - add partitions
 - **Producer**
-
+    - produce to specify partition
+    - produce by specify key
+    - produce with headers
+    
 - **Consumer**
+    - consume from specified partition and offset
+    
+- **ConsumerGroup**
+    - consume by group
+
+- **Admin**
+    - delete consumer groups
+    - delete records
+    - describe cluster
+    - describe consumer groups
+    - describe log dirs
+    - list consumer groups
+    - list consumer offset
 
 ## Installation
 
@@ -193,6 +204,55 @@ A command line tool for apache kafka, include topic,consumer,producer, admin's o
           --group-id string            The consumer group ID (default "kafka-cli")
       -h, --help                       help for consumerg
           --topics string              The topics to consume,more than one should be separated by commas
+          
+**Admin**
+    
+    ./kafka-cli admin -h
+    
+    Admin operations. delete records, list consumer groups, describe groups, list group offsets, delete groups, describe cluster, describe log dirs and etc
+    
+    Usage:
+      kafka-cli admin [flags]
+    
+    Examples:
+    
+    # List all consumer groups
+        ./kafka-cli admin --list-consumer-groups
+    
+    # Describe a certain consumer group
+        ./kafka-cli admin --describe-groups --groups=garvin
+    
+    # Delete consumer groups
+        ./kafka-cli admin --delete-groups --groups=garvin
+    
+    # Delete message records, records which less than specified offset will be deleted
+        ./kafka-cli admin --delete-records --topics=singed --partitions=1,2 --offset=100
+    
+    # List consumer offset
+        ./kafka-cli admin --list-consumer-offsets --groups=garvin --topics=singed,test --partitions=0,1,2
+    
+    # Describe cluster
+        ./kafka-cli admin --describe-cluster
+    
+    # Describe log dirs
+        ./kafka-cli admin --describe-log-dirs --brokers=0,1   
+    
+    
+    Flags:
+      -b, --bootstrap-server string   The Kafka server to connect to.more than one should be separated by commas (default "localhost:9092")
+          --brokers string            The brokers commands will act on.
+          --delete-groups             Delete consumer groups, when specified, groups should also specified
+          --delete-records            Delete record, when specified, topics, partitions and offset should also specified
+          --describe-cluster          Get information about the nodes in the cluster
+          --describe-groups           Describe a certain consumer group,when specified, groups should also specified
+          --describe-log-dirs         Get information about all log directories on the given set of brokers, when specified, brokers should also specified
+          --groups string             The consumer groups commands will act on.
+      -h, --help                      help for admin
+          --list-consumer-groups      List all consumer groups
+          --list-consumer-offsets     List consumer offsets, when specified, groups, topics, partitions should also specified, and will use cartesian product of topics and partitions
+          --offset int                The offset commands will act on.
+          --partitions string         The partitions commands will act on, separate by commas.
+          --topics string             The topics commands will act on, separate by commas.
 
 Please use `./kafka-cli -h` or `./kafka-cli [command] -h` for more detail.
 

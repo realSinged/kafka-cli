@@ -44,7 +44,7 @@ func (o *consumerOptions) run(cmd *cobra.Command, args []string) {
 			case msg := <-pc.Messages():
 				utils.PrintConsumerMessage(msg)
 			case err := <-pc.Errors():
-				log.Error("partition consumer", zap.Error(err))
+				log.Info("partition consumer", zap.Error(err))
 			default:
 				//do nothing
 			}
