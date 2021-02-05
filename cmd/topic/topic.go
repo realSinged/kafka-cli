@@ -71,16 +71,16 @@ var (
 
 type topicOptions struct {
 	bootstrapServers string
-	list bool
-	describe string
-	create string
-	delete string
-	addPartition string
-	numPartition int32 //创建topic时指定的partition
-	numReplica int16 //创建topic时指定的副本数
+	list             bool
+	describe         string
+	create           string
+	delete           string
+	addPartition     string
+	numPartition     int32 //创建topic时指定的partition
+	numReplica       int16 //创建topic时指定的副本数
 }
 
-func newTopicOptions() *topicOptions{
+func newTopicOptions() *topicOptions {
 	return &topicOptions{}
 }
 
@@ -89,6 +89,9 @@ func (o *topicOptions) run(cmd *cobra.Command, args []string) {
 	servers := strings.Split(o.bootstrapServers, ",")
 	admin, err := kafka.NewAdmin(servers, config)
 	utils.CheckErr(err)
+	defer func() {
+		utils.CheckErr(admin.Close())
+	}()
 	if o.list {
 		topics, err := admin.ListTopics()
 		utils.CheckErr(err)
@@ -98,14 +101,14 @@ func (o *topicOptions) run(cmd *cobra.Command, args []string) {
 	} else if o.describe != "" {
 		topics, err := admin.DescribeTopics(strings.Split(o.describe, ","))
 		utils.CheckErr(err)
-		for _,v := range topics {
+		for _, v := range topics {
 			utils.PrintTopicMeta(v)
 		}
-	}else if o.create != "" {
+	} else if o.create != "" {
 		err := admin.CreateTopic(o.create, &sarama.TopicDetail{NumPartitions: o.numPartition, ReplicationFactor: o.numReplica}, false)
 		utils.CheckErr(err)
 		log.Info("Create topic success", zap.String("topic", o.create), zap.Int32("partition num", o.numPartition), zap.Int16("replica num", o.numReplica))
-	} else if o.delete  != ""{
+	} else if o.delete != "" {
 		err := admin.DeleteTopic(o.delete)
 		utils.CheckErr(err)
 		log.Info("Delete Topic success", zap.String("topic", o.delete))
@@ -122,11 +125,11 @@ func NewCmdTopic() *cobra.Command {
 	o := newTopicOptions()
 
 	cmd := &cobra.Command{
-		Use: "topic",
-		Short: "Kafka topic operations",
-		Long: "Topic operations, include topic create、list、delete、detail, topic partition create",
+		Use:     "topic",
+		Short:   "Kafka topic operations",
+		Long:    "Topic operations, include topic create、list、delete、detail, topic partition create",
 		Example: topicExample,
-		Run: o.run,
+		Run:     o.run,
 	}
 	cmd.Flags().StringVarP(&o.bootstrapServers, "bootstrap-server", "b", "localhost:9092", "The Kafka server to connect to.more than one should be separated by commas")
 	cmd.Flags().BoolVarP(&o.list, "list", "l", o.list, "List all available topics.")
@@ -134,7 +137,7 @@ func NewCmdTopic() *cobra.Command {
 	cmd.Flags().StringVarP(&o.create, "create", "c", o.create, "Create a new topic.")
 	cmd.Flags().Int32Var(&o.numPartition, "partition-num", 1, "The specified partition when create topic or add partition")
 	cmd.Flags().Int16Var(&o.numReplica, "replica-num", 1, "The specified replica when create topic")
-	cmd.Flags().StringVarP(&o.delete, "delete", "d", o.delete,"Delete a topic.")
+	cmd.Flags().StringVarP(&o.delete, "delete", "d", o.delete, "Delete a topic.")
 	cmd.Flags().StringVar(&o.addPartition, "add-partition", o.addPartition, "The Topic which need to create partition, partition num must higher than which already exists")
 	return cmd
 }

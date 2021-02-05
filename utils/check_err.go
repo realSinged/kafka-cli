@@ -14,7 +14,7 @@ func fatal(msg string, code int) {
 	os.Exit(code)
 }
 
-func checkErr(err error, handleErr func(string,int)) {
+func checkErr(err error, handleErr func(string, int)) {
 	if err == nil {
 		return
 	}

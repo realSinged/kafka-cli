@@ -19,12 +19,12 @@ var producerExample = `
 
 type producerOptions struct {
 	bootstrapServers string
-	topic string
-	key string
-	value string
-	headers string
-	partitioner string
-	partition int32
+	topic            string
+	key              string
+	value            string
+	headers          string
+	partitioner      string
+	partition        int32
 }
 
 func newProducerOptions() *producerOptions {
@@ -42,12 +42,16 @@ func (o *producerOptions) validate() error {
 }
 
 func (o *producerOptions) run(cmd *cobra.Command, args []string) {
-	utils.CheckErr(o.validate())
 
+	err := o.validate()
+	if err != nil {
+		log.Info("kafka producer validate flags failed", zap.String("reason", err.Error()))
+		return
+	}
 	config := sarama.NewConfig()
 	if o.partitioner == "random" {
 		config.Producer.Partitioner = sarama.NewRandomPartitioner
-	} else if  o.partition >= 0 {
+	} else if o.partition >= 0 {
 		config.Producer.Partitioner = sarama.NewManualPartitioner
 	}
 
@@ -70,33 +74,33 @@ func (o *producerOptions) run(cmd *cobra.Command, args []string) {
 		msg.Key = sarama.StringEncoder(o.key)
 	}
 	if o.headers != "" {
-			var hdrs []sarama.RecordHeader
-			arrHdrs := strings.Split(o.headers, ",")
-			for _, h := range arrHdrs {
-				if header := strings.Split(h, ":"); len(header) != 2 {
-					utils.CheckErr(errors.New("-header should be key:value. Example: -headers=foo:bar,bar:foo"))
-				} else {
-					hdrs = append(hdrs, sarama.RecordHeader{
-						Key:   []byte(header[0]),
-						Value: []byte(header[1]),
-					})
-				}
+		var hdrs []sarama.RecordHeader
+		arrHdrs := strings.Split(o.headers, ",")
+		for _, h := range arrHdrs {
+			if header := strings.Split(h, ":"); len(header) != 2 {
+				utils.CheckErr(errors.New("-header should be key:value. Example: -headers=foo:bar,bar:foo"))
+			} else {
+				hdrs = append(hdrs, sarama.RecordHeader{
+					Key:   []byte(header[0]),
+					Value: []byte(header[1]),
+				})
 			}
-			if len(hdrs) != 0 {
-				msg.Headers = hdrs
-			}
+		}
+		if len(hdrs) != 0 {
+			msg.Headers = hdrs
+		}
 	}
 	partition, offset, err := producer.SendMessage(&msg)
 	log.Info("Send message success", zap.Int32("partition", partition), zap.Int64("offset", offset))
 }
-func NewCmdProducer() *cobra.Command{
+func NewCmdProducer() *cobra.Command {
 	o := newProducerOptions()
 	cmd := &cobra.Command{
-		Use: "producer",
-		Short: "A kafka synchronous producer",
-		Long: "A kafka synchronous producer, with pretty much config options. but it's not asynchronous, which means it will wait for result before return",
+		Use:     "producer",
+		Short:   "A kafka synchronous producer",
+		Long:    "A kafka synchronous producer, with pretty much config options. but it's not asynchronous, which means it will wait for result before return",
 		Example: producerExample,
-		Run: o.run,
+		Run:     o.run,
 	}
 	cmd.Flags().StringVarP(&o.bootstrapServers, "bootstrap-servers", "b", "localhost:9092", "The Kafka server to connect to.more than one should be separated by commas")
 	cmd.Flags().StringVar(&o.topic, "topic", o.topic, "REQUIRED: The topic id to produce messages to.")

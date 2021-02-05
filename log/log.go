@@ -7,7 +7,7 @@ var logger *zap.Logger
 func init() {
 	logger, _ = zap.NewProduction()
 }
-func NewLogger() *zap.Logger{
+func NewLogger() *zap.Logger {
 	logger, _ := zap.NewProduction()
 	return logger
 }
@@ -17,7 +17,7 @@ func Info(msg string, fields ...zap.Field) {
 }
 
 func Warn(msg string, fields ...zap.Field) {
-logger.Warn(msg, fields...)
+	logger.Warn(msg, fields...)
 }
 
 func Error(msg string, fields ...zap.Field) {

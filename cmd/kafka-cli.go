@@ -19,14 +19,15 @@ func main() {
 	}
 }
 
-func NewKafkaCliCommand() *cobra.Command{
+func NewKafkaCliCommand() *cobra.Command {
 	cmds := &cobra.Command{
-		Use: "kafka-cli",
+		Use:   "kafka-cli",
 		Short: "a command line tools for apache kafka",
-		Long: "a command line tools for apache kafka, include topic,consumer,producer, admin's operations",
-		Run: runHelp,
+		Long:  "a command line tools for apache kafka, include topic,consumer,producer, admin's operations",
+		Run:   runHelp,
 	}
-	cmds.AddCommand(consumer.NewCmdConsume())
+	cmds.AddCommand(consumer.NewCmdConsumeGroup())
+	cmds.AddCommand(consumer.NewCmdConsumer())
 	cmds.AddCommand(topic.NewCmdTopic())
 	cmds.AddCommand(admin.NewCmdAdmin())
 	cmds.AddCommand(producer.NewCmdProducer())

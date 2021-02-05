@@ -150,7 +150,50 @@ A command line tool for apache kafka, include topic,consumer,producer, admin's o
           --partitioner string         The partitioning scheme to use. Can be hash, manual, or random (default "hash")
           --topic string               REQUIRED: The topic id to produce messages to.
           --value string               REQUIRED: The message content which is going to be produced
+          
+**Consumer**
     
+    ./kafka-cli consumer -h
+    
+    Consume kafka message with given topic and partition, if you want to consume all partition, please refer to use consumerg
+    
+    Usage:
+      kafka-cli consumer [flags]
+    
+    Examples:
+    
+    # Consume msgs which start with given topic, partition and offset.
+        ./kafka-cli consumer --bootstrapServers=localhost:9092 --topic=singed --offset=1 --partition=1
+    
+    
+    Flags:
+      -b, --bootstrap-servers string   The Kafka server to connect to.more than one should be separated by commas (default "localhost:9092")
+      -h, --help                       help for consumer
+          --offset int                 Which offset to consume start with, -2 means oldest, -1 means newest (default -1)
+          --partition int32            The partition to consume (default 0)
+          --topic string               REQUIRED: The topics to consume,more than one should be separated by commas
+          
+**Consumer Group**
+    
+    ./kafka-cli consumerg -h
+    
+    Consume kafka message with given topics and group_id, and message will be auto committed
+    
+    Usage:
+      kafka-cli consumerg [flags]
+    
+    Examples:
+    
+    # Consume kafka messages of set of topic which certain group id, and will print those message in terminal
+            kafka-cli consume -t test,singed -c default -b localhost:9092
+                    
+    
+    Flags:
+      -b, --bootstrap-servers string   The Kafka server to connect to.more than one should be separated by commas (default "localhost:9092")
+          --group-id string            The consumer group ID (default "kafka-cli")
+      -h, --help                       help for consumerg
+          --topics string              The topics to consume,more than one should be separated by commas
+
 Please use `./kafka-cli -h` or `./kafka-cli [command] -h` for more detail.
 
 ## Compatibility
