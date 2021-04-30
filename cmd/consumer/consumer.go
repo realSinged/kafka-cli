@@ -1,13 +1,14 @@
 package consumer
 
 import (
+	"strings"
+
 	"github.com/Shopify/sarama"
 	"github.com/realSinged/kafka-cli/kafka"
 	"github.com/realSinged/kafka-cli/log"
 	"github.com/realSinged/kafka-cli/utils"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
-	"strings"
 )
 
 var consumerExample = `
@@ -20,6 +21,8 @@ type consumerOptions struct {
 	topic            string
 	partition        int32
 	offset           int64
+	user             string
+	password         string
 }
 
 func newConsumerOptions() *consumerOptions {
@@ -29,6 +32,11 @@ func newConsumerOptions() *consumerOptions {
 func (o *consumerOptions) run(cmd *cobra.Command, args []string) {
 	if o.topic != "" {
 		config := sarama.NewConfig()
+		if o.user != "" && o.password != "" {
+			config.Net.SASL.Enable = true
+			config.Net.SASL.User = o.user
+			config.Net.SASL.Password = o.password
+		}
 		c, err := kafka.NewConsumer(strings.Split(o.bootstrapServers, ","), config)
 		utils.CheckErr(err)
 		defer func() {
@@ -67,5 +75,7 @@ func NewCmdConsumer() *cobra.Command {
 	cmd.Flags().StringVar(&o.topic, "topic", o.topic, "REQUIRED: The topics to consume,more than one should be separated by commas")
 	cmd.Flags().Int32Var(&o.partition, "partition", 0, "The partition to consume (default 0)")
 	cmd.Flags().Int64Var(&o.offset, "offset", sarama.OffsetNewest, "Which offset to consume start with, -2 means oldest, -1 means newest")
+	cmd.Flags().StringVar(&o.user, "user", o.user, "auth user, if miss means no auth")
+	cmd.Flags().StringVar(&o.password, "password", o.password, "auth password, if miss means no auth")
 	return cmd
 }

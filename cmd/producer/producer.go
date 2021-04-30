@@ -2,13 +2,14 @@ package producer
 
 import (
 	"errors"
+	"strings"
+
 	"github.com/Shopify/sarama"
 	"github.com/realSinged/kafka-cli/kafka"
 	"github.com/realSinged/kafka-cli/log"
 	"github.com/realSinged/kafka-cli/utils"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
-	"strings"
 )
 
 var producerExample = `
@@ -20,6 +21,7 @@ var producerExample = `
 
 type producerOptions struct {
 	bootstrapServers string
+	user, password   string
 	topic            string
 	key              string
 	value            string
@@ -50,6 +52,11 @@ func (o *producerOptions) run(cmd *cobra.Command, args []string) {
 		return
 	}
 	config := sarama.NewConfig()
+	if o.user != "" && o.password != "" {
+		config.Net.SASL.Enable = true
+		config.Net.SASL.User = o.user
+		config.Net.SASL.Password = o.password
+	}
 	if o.partitioner == "random" {
 		config.Producer.Partitioner = sarama.NewRandomPartitioner
 	} else if o.partition >= 0 {
@@ -110,5 +117,7 @@ func NewCmdProducer() *cobra.Command {
 	cmd.Flags().StringVar(&o.partitioner, "partitioner", "hash", "The partitioning scheme to use. Can be hash, manual, or random")
 	cmd.Flags().Int32Var(&o.partition, "partition", -1, "The partition which message produce to, if provided, it will use manual partitioner")
 	cmd.Flags().StringVar(&o.headers, "headers", "", "The headers of the message. Example: -headers=foo:bar,bar:foo")
+	cmd.Flags().StringVar(&o.user, "user", o.user, "auth user, if miss means no auth")
+	cmd.Flags().StringVar(&o.password, "password", o.password, "auth password, if miss means no auth")
 	return cmd
 }

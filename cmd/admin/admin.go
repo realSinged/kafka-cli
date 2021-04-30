@@ -2,20 +2,21 @@ package admin
 
 import (
 	"errors"
+	"strconv"
+	"strings"
+
 	"github.com/Shopify/sarama"
 	"github.com/realSinged/kafka-cli/kafka"
 	"github.com/realSinged/kafka-cli/log"
 	"github.com/realSinged/kafka-cli/utils"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
-	"strconv"
-	"strings"
 )
 
 /*
 describeCluster
 DescribeLogDirs
- */
+*/
 
 var adminExample = `
 # List all consumer groups
@@ -42,19 +43,20 @@ var adminExample = `
 
 type adminOptions struct {
 	bootstrapServers string
-	groups string
-	topics string
-	partitions string
-	brokers string
-	offset int64
+	user, password   string
+	groups           string
+	topics           string
+	partitions       string
+	brokers          string
+	offset           int64
 
-	deleteRecords bool
-	listConsumerGroups bool
-	describeGroups bool
-	deleteGroups bool
+	deleteRecords       bool
+	listConsumerGroups  bool
+	describeGroups      bool
+	deleteGroups        bool
 	listConsumerOffsets bool
-	describeCluster bool
-	describeLogDirs bool
+	describeCluster     bool
+	describeLogDirs     bool
 }
 
 func newAdminOptions() *adminOptions {
@@ -97,6 +99,11 @@ func (o *adminOptions) run(cmd *cobra.Command, args []string) {
 		return
 	}
 	config := sarama.NewConfig()
+	if o.user != "" && o.password != "" {
+		config.Net.SASL.Enable = true
+		config.Net.SASL.User = o.user
+		config.Net.SASL.Password = o.password
+	}
 	servers := strings.Split(o.bootstrapServers, ",")
 	admin, err := kafka.NewAdmin(servers, config)
 	utils.CheckErr(err)
@@ -104,20 +111,20 @@ func (o *adminOptions) run(cmd *cobra.Command, args []string) {
 		utils.CheckErr(admin.Close())
 	}()
 
-	if  o.deleteRecords {
+	if o.deleteRecords {
 		topics := strings.Split(o.topics, ",")
 		_partitions := strings.Split(o.partitions, ",")
 		partitionOffsets := map[int32]int64{}
 		for _, p := range _partitions {
 			partition, err := strconv.ParseInt(p, 10, 64)
 			utils.CheckErr(err)
-			partitionOffsets[int32(partition)]=o.offset
+			partitionOffsets[int32(partition)] = o.offset
 		}
 		for _, t := range topics {
 			utils.CheckErr(admin.DeleteRecords(t, partitionOffsets))
 			log.Info("delete records success", zap.String("topic", t), zap.Any("offsetPartitions", partitionOffsets))
 		}
-	} else if o.listConsumerGroups{
+	} else if o.listConsumerGroups {
 		groups, err := admin.ListConsumerGroups()
 		utils.CheckErr(err)
 		utils.PrintConsumerGroups(groups)
@@ -127,13 +134,13 @@ func (o *adminOptions) run(cmd *cobra.Command, args []string) {
 		for _, g := range groupDetail {
 			utils.PrintGroupDetail(g)
 		}
-	} else if o.deleteGroups{
+	} else if o.deleteGroups {
 		groups := strings.Split(o.groups, ",")
 		for _, g := range groups {
 			utils.CheckErr(admin.DeleteConsumerGroup(g))
 			log.Info("Delete consumer group success", zap.String("group", g))
 		}
-	}else if o.listConsumerOffsets{
+	} else if o.listConsumerOffsets {
 		groups := strings.Split(o.groups, ",")
 		topics := strings.Split(o.topics, ",")
 		_partitions := strings.Split(o.partitions, ",")
@@ -151,11 +158,11 @@ func (o *adminOptions) run(cmd *cobra.Command, args []string) {
 			utils.CheckErr(err)
 			utils.PrintConsumerGroupOffsets(g, res)
 		}
-	}else if o.describeCluster{
+	} else if o.describeCluster {
 		brokers, controllerID, err := admin.DescribeCluster()
 		utils.CheckErr(err)
 		utils.PrintCluster(controllerID, brokers)
-	}else if o.describeLogDirs{
+	} else if o.describeLogDirs {
 		_brokers := strings.Split(o.brokers, ",")
 		var brokers []int32
 		for _, b := range _brokers {
@@ -167,7 +174,7 @@ func (o *adminOptions) run(cmd *cobra.Command, args []string) {
 		res, err := admin.DescribeLogDirs(brokers)
 		utils.CheckErr(err)
 		utils.PrintLogDirs(res)
-	}else {
+	} else {
 		cmd.Help()
 	}
 }
@@ -196,5 +203,7 @@ func NewCmdAdmin() *cobra.Command {
 	cmd.Flags().Int64Var(&o.offset, "offset", o.offset, "The offset commands will act on.")
 	cmd.Flags().StringVar(&o.groups, "groups", o.groups, "The consumer groups commands will act on.")
 	cmd.Flags().StringVar(&o.brokers, "brokers", o.brokers, "The brokers commands will act on.")
+	cmd.Flags().StringVar(&o.user, "user", o.user, "auth user, if miss means no auth")
+	cmd.Flags().StringVar(&o.password, "password", o.password, "auth password, if miss means no auth")
 	return cmd
 }

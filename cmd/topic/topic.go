@@ -1,13 +1,14 @@
 package topic
 
 import (
+	"strings"
+
 	"github.com/Shopify/sarama"
 	"github.com/realSinged/kafka-cli/kafka"
 	"github.com/realSinged/kafka-cli/log"
 	"github.com/realSinged/kafka-cli/utils"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
-	"strings"
 )
 
 var (
@@ -71,6 +72,7 @@ var (
 
 type topicOptions struct {
 	bootstrapServers string
+	user, password   string
 	list             bool
 	describe         string
 	create           string
@@ -86,6 +88,12 @@ func newTopicOptions() *topicOptions {
 
 func (o *topicOptions) run(cmd *cobra.Command, args []string) {
 	config := sarama.NewConfig()
+	if o.user != "" && o.password != "" {
+		config.Net.SASL.Enable = true
+		config.Net.SASL.User = o.user
+		config.Net.SASL.Password = o.password
+	}
+
 	servers := strings.Split(o.bootstrapServers, ",")
 	admin, err := kafka.NewAdmin(servers, config)
 	utils.CheckErr(err)
@@ -139,5 +147,7 @@ func NewCmdTopic() *cobra.Command {
 	cmd.Flags().Int16Var(&o.numReplica, "replica-num", 1, "The specified replica when create topic")
 	cmd.Flags().StringVarP(&o.delete, "delete", "d", o.delete, "Delete a topic.")
 	cmd.Flags().StringVar(&o.addPartition, "add-partition", o.addPartition, "The Topic which need to create partition, partition num must higher than which already exists")
+	cmd.Flags().StringVar(&o.user, "user", o.user, "auth user, if miss means no auth")
+	cmd.Flags().StringVar(&o.password, "password", o.password, "auth password, if miss means no auth")
 	return cmd
 }
